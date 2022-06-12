@@ -1,0 +1,30 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+# Ignoring directories
+# Both the directory itself and its contents will be ignored.
+TestTool/
+ETrimHost/
+_statistic/
+UnitTestData/
+obj/
+bin/
+.vs/
+.svn/
+NDependOut/
+
+# To ignore files only at the top level directory, but not in its
+# subdirectories, prefix the rule with a `/`
+/*.bat
+/*.sh
+/*.ps1
+/*.txt
+/*.db
+/*.py
+/*.bak
+/*.ndproj
+/*.jpg
+/*.csv
+/*.xml
+/Sentio/Sentio.sln.DotSettings.user
