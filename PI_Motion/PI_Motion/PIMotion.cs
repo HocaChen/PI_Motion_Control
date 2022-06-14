@@ -7,11 +7,15 @@ namespace PI_Motion
     public class PIMotion
     {
         private static PIController _pi;
+        private static Issue1 _issue1;
 
         static void Main(string[] args)
         {
             _pi = new PIController();
             _pi.Init();
+
+            _issue1 = new Issue1(_pi.DeviceId);
+            //_issue1.Issue1_start();
         }
     }
 
@@ -40,7 +44,6 @@ namespace PI_Motion
             public string ErrorMessage;
         }
         private string _id = "[SiPhAxisDriver]";
-        internal int ControllerId = -1;
         private const int PI_RESULT_FAILURE = 0;
 
         private readonly string[] _axis =
@@ -50,7 +53,7 @@ namespace PI_Motion
 
         public void Init()
         {
-            OpenConnection();
+            OpenConnection("192.168.0.3");
             PrintControllerIdentification();
 
             Thread t1 = new Thread(PollingStatus);
@@ -59,11 +62,16 @@ namespace PI_Motion
 
         private void PollingStatus(object obj)
         {
-            AxisStatus status;
-            foreach (var axis in _axis)
+            while (true)
             {
-                UpdateAxisStatus(axis, out status);
-                Console.WriteLine($"Axis, {axis}, position:{status.CurrentPos}");
+                Thread.Sleep(100);
+
+                AxisStatus status;
+                foreach (var axis in _axis)
+                {
+                    UpdateAxisStatus(axis, out status);
+                    Console.WriteLine($"Axis, {axis}, position:{status.CurrentPos}");
+                }
             }
         }
 
@@ -81,7 +89,7 @@ namespace PI_Motion
         {
             var controllerIdentification = new StringBuilder(1024);
 
-            if (PiGcs2.qIDN(ControllerId, controllerIdentification, controllerIdentification.Capacity) ==
+            if (PiGcs2.qIDN(DeviceId, controllerIdentification, controllerIdentification.Capacity) ==
                 PI_RESULT_FAILURE)
             {
                 throw new Exception("qIDN failed.");
@@ -180,6 +188,42 @@ namespace PI_Motion
                 Console.WriteLine(e);
             }
             status = _status;
+        }
+    }
+
+    public class Issue1
+    {
+        private int _deviceId;
+
+        public Issue1(int deviceId)
+        {
+            _deviceId = deviceId;
+
+            SendCommand("HLP?");
+            StringBuilder s = new StringBuilder();
+            PiGcs2.GcsGetAnswer(_deviceId, s, 4098);
+        }
+
+        public void Issue1_start()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                UpdateCoordinate();
+            }
+        }
+
+        private void UpdateCoordinate()
+        {
+            SendCommand("KEN ZERO");
+            SendCommand("KSD TIP1S X -116 Y -0.316 Z -92.481");
+            SendCommand("KLN TIP1S SENDER");
+            SendCommand("KEN TIP1S");
+            SendCommand("WPA SKS");
+        }
+
+        private void SendCommand(string arg)
+        {
+            PiGcs2.GcsCommandset(_deviceId, arg);
         }
     }
 }
