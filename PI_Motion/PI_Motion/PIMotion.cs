@@ -15,7 +15,7 @@ namespace PI_Motion
             _pi.Init();
 
             _issue1 = new Issue1(_pi.DeviceId);
-            //_issue1.Issue1_start();
+            _issue1.Issue1_start();
         }
     }
 
@@ -198,10 +198,6 @@ namespace PI_Motion
         public Issue1(int deviceId)
         {
             _deviceId = deviceId;
-
-            SendCommand("HLP?");
-            StringBuilder s = new StringBuilder();
-            PiGcs2.GcsGetAnswer(_deviceId, s, 4098);
         }
 
         public void Issue1_start()
